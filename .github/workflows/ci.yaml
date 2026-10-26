@@ -45,7 +45,7 @@ jobs:
         include:
           - platform: Linux
             os: ubuntu-latest
-            make: CC=gcc-14 CXX=g++-14 make
+            make: make
             build: ""
             test: test
           - platform: macOS
@@ -70,6 +70,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: cycles
+
+      - name: Select GCC 14 (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          # gcc-14 is preinstalled on ubuntu-24.04; install it if a future image lacks it
+          if ! command -v g++-14 >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y gcc-14 g++-14
+          fi
+          echo "CC=gcc-14"  >> "$GITHUB_ENV"
+          echo "CXX=g++-14" >> "$GITHUB_ENV"
+          g++-14 --version
 
       - name: Compute Libraries Key
         id: libs_key
